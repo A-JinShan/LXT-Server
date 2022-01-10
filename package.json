@@ -1,0 +1,15 @@
+{
+  "name": "LXT-Server",
+  "version": "1.0.0",
+  "main": "./src/index.js",
+  "repository": "git@github.com:A-JinShan/LXT-Server.git",
+  "author": "jin <910897411@qq.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.2",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemailer": "^6.7.2"
+  }
+}
