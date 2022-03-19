@@ -40,19 +40,21 @@ router.get("/delete", (req, resp) => {
     // 1. 删除对应的图片
     resp.tool.execSQL(`select header from t_teacher where id=?;`, [id], result => {
         if (result.length > 0) {
-            let filePath = path.resolve(__dirname, "../../public" + result[0].header)
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath)
-            }
             // 2. 删除记录
             let sql = `delete from t_teacher where id=?;`
             resp.tool.execSQL(sql, [id], result => {
                 if (result.affectedRows > 0) {
                     resp.send(resp.tool.respondTemp(0, "删除成功"))
+                    //当记录删除成功时，在删除图片
+                    let filePath = path.resolve(__dirname, "../../public" + result[0].header)
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath)
+                    }
                 } else {
                     resp.send(resp.tool.respondTemp(-1, "删除失败"))
                 }
-
+            },error =>{
+                resp.send(resp.tool.respondTemp(-2, "删除失败,请检查该讲师是否还存在课程"))
             })
 
         }

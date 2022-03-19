@@ -8,7 +8,7 @@ router.post("/login", (req, resp) => {
         resp.send(resp.tool.respondTemp(-1, "请传递account账号, password密码"))
         return null
     }
-    let sql =`select id, account, nick_name from t_admin where account=? and password=?`
+    let sql =`select id, account, nick_name,header from t_admin where account=? and password=?`
     resp.tool.execSQL(sql, [account, password]).then((result) => {
         if (result.length > 0) {
             resp.send(resp.tool.respondTemp(0, "登录成功", result[0]));

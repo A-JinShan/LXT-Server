@@ -34,12 +34,17 @@ router.get("/ov_course", (req, resp) => {
 })
 router.get("/ov_article", (req, resp) => {
     let data = {
+        today: 0,
         total: 0
     }
-    resp.tool.execSQL("select count(*) as total from t_news;", [],result => {
-        data.total = result[0].total
-        resp.json(resp.tool.respondTemp(0, "获取文章统计成功", data))
+    resp.tool.execSQL("select count(*) as today from t_news where to_days(create_time) = to_days(now());", [], result => {
+        data.today = result[0].today
+        resp.tool.execSQL("select count(*) as total from t_news;", [],result => {
+            data.total = result[0].total
+            resp.json(resp.tool.respondTemp(0, "获取文章统计成功", data))
+        })
     })
+
 })
 router.get("/ov_comment", (req, resp) => {
     let score = req.query.score || 0

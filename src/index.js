@@ -24,9 +24,6 @@ const m_statisticsRouter = require("./routers/manager/statisticsRouter")
 
 let app = express();
 
-//跨域中间件
-app.use(crossDomainM)
-
 //挂载工具的中间件
 app.use(toolM)
 
@@ -35,6 +32,9 @@ app.use(express.json(),express.urlencoded({ extended: true }))
 
 //挂载日志中间件
 app.use(rizhiM)
+
+//跨域中间件
+app.use(crossDomainM)
 
 //挂载静态资源服务中间件
 app.use(express.static(path.resolve(__dirname,"public")))

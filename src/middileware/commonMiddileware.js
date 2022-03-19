@@ -5,9 +5,10 @@ const execSQL = require("../tool/mysqlUtil")
 
 //跨域中间件
 let crossDomainM = (req, resp, next) =>{
-    resp.header("Access-Control-Allow-origin","*")
-    resp.header("Access-Control-Allow-Methods","GET,PUT,POST,DELETE")
-    resp.header("Access-Control-Allow-Headers","Content-Type")
+    resp.header("Access-Control-Allow-Origin", "*")
+    resp.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With")
+    resp.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS")
+    resp.header("X-Powered-By",' 3.2.1')
     next()
 }
 

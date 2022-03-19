@@ -16,9 +16,9 @@ router.get("/web_config",(req,resp)=>{
         LIMit 1;
     `),"网站联系方式查询成功",function (result) {
         if(result.length > 0){
-            resp.send(resp.tool.respondTemp(1,"基本配置信息查询成功!",result[0]))
+            return result[0]
         }else{
-            resp.send(resp.tool.respondTemp(0,"基本配置信息查询失败!",{}))
+            return {}
         }
     }
 })

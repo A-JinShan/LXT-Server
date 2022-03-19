@@ -179,10 +179,19 @@ router.post("/update", (req, resp) => {
     resp.tool.execSQL("select fm_url from t_course where id=?;", [id]).then(result=>{
         if (result.length > 0) {
             let oldPath = result[0].fm_url;
-            fs.unlink(path.resolve(__dirname, "../../public/", "."+oldPath), () => {
-                let sql = `
-        update t_course set title=?, fm_url=?, is_hot=?, intro=?, teacher_id=? ,category_id=? where id=?;
-    `
+            let sql = `update t_course set title=?, fm_url=?, is_hot=?, intro=?, teacher_id=? ,category_id=? where id=?;`
+            if(fm_url !== oldPath){
+                fs.unlink(path.resolve(__dirname, "../../public/", "."+oldPath), () => {
+                    resp.tool.execSQLTempAutoResponse(sql, [title, fm_url, is_hot, intro, teacher_id, category_id, id], "更新成功", result => {
+                        if (result.affectedRows > 0) {
+                            return {
+                                id, title, fm_url, is_hot, intro, teacher_id, category_id
+                            }
+                        }
+                        return {}
+                    })
+                })
+            }else{
                 resp.tool.execSQLTempAutoResponse(sql, [title, fm_url, is_hot, intro, teacher_id, category_id, id], "更新成功", result => {
                     if (result.affectedRows > 0) {
                         return {
@@ -191,7 +200,7 @@ router.post("/update", (req, resp) => {
                     }
                     return {}
                 })
-            })
+            }
         }
     })
 

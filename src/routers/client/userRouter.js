@@ -51,9 +51,18 @@ router.post("/login",(req,resp)=>{
 
 //鉴权判定
 router.use((req,resp,next) =>{
-
-
-    next();
+    // 判定用户是否登录过了?
+    // 登录: next()
+    // 没有登录: 拦截->响应提示给回客户端
+    let isLogin = true;
+    if (isLogin) {
+        next()
+    } else {
+        resp.send({
+            code: -1,
+            message: "你还未登录, 请登录后调用该接口"
+        })
+    }
 })
 
 //学习历史记录信息
@@ -130,7 +139,6 @@ router.post("/update_study_history",(req,resp)=>{
 let uploader = multer({dest:path.resolve(__dirname,"../../public/images/user")})
 router.post("/update_header",uploader.single("header"),(req,resp)=>{
     let {user_id} = req.body;
-
     let file = req.file;
     let file_name= file.filename;
     let ext_name = path.extname(file.originalname);
@@ -144,14 +152,14 @@ router.post("/update_header",uploader.single("header"),(req,resp)=>{
             //判断是否四默认头像 不是删除
             if("/images/user/xl.jpg" !== userHeaderPath.toLowerCase()){
                 //删除对应的图片资源
-                fs.unlinkSync(path.resolve(__dirname,"../public/"+userHeaderPath));
+                fs.unlinkSync(path.resolve(__dirname,"../../public" + userHeaderPath));
             }
             //把新的图像路径存储到数据库当中(更新)
-            let newPath = "/images/user/" + ext_name + ext_name;
-            resp.tool.execSQL(`update t_user set header = ? where id = ? ;`,[newPath,user_id],"头像修改成功！").then(result =>{
-                if(result.affectedRows > 0){
-                    resp.tool.execSQL(`select id,account,nick_name,header,intro from t_user where id = ?;`,[user_id]).then(result =>{
-                        resp.send(resp.tool.respondTemp("0","头像更新成功！",result[0]))
+            let newPath = "/images/user/" + file_name + ext_name;
+            resp.tool.execSQL(`update t_user set header = ? where id = ? ;`,[newPath,user_id],"头像修改成功！").then(res =>{
+                if(res.affectedRows > 0){
+                    resp.tool.execSQL(`select id,account,nick_name,header,intro from t_user where id = ?;`,[user_id]).then(userResult =>{
+                        resp.send(resp.tool.respondTemp("0","头像更新成功！",userResult[0]))
                     })
                 }else {
                     resp.send(resp.tool.respondTemp("0","头像更新失败！",{}))
@@ -159,10 +167,9 @@ router.post("/update_header",uploader.single("header"),(req,resp)=>{
             })
         }
     })
-
-
-    console.log(file)
 })
+
+
 
 //用户基本信息的更新
 router.post("/update_info",(req,resp)=>{
@@ -174,12 +181,12 @@ router.post("/update_info",(req,resp)=>{
         //ID存在 修改内容和原内容不一致
         if(result.affectedRows > 0){
             //更新成功
-            resp.tool.execSQL(`select id,account,nick_name,header,intro from t_user where id = ?;`,[user_id]).then(result =>{
-                resp.send(resp.tool.respondTemp("0","用户信息更新成功！",result[0]))
+            resp.tool.execSQL(`select id,account,nick_name,header,intro from t_user where id = ?;`,[user_id]).then(userResult =>{
+                resp.send(resp.tool.respondTemp(0,"用户信息更新成功！",userResult[0]))
             })
         }else {
             //更新失败
-            resp.send(resp.tool.respondTemp("0","用户信息更新失败:用户不存在！",{}))
+            resp.send(resp.tool.respondTemp(0,"用户信息更新失败:用户不存在！",{}))
         }
     })
 
@@ -189,15 +196,11 @@ router.post("/update_info",(req,resp)=>{
 router.post("/update_password",(req,resp)=>{
     const {account,password,new_password} = req.body;
 
-    resp.tool.execSQLTempAutoResponse(`update t_user set password = ? where account = ? and password = ?;`,[new_password,account,password],"更新完成！",result =>{
+    resp.tool.execSQL(`update t_user set password = ? where account = ? and password = ?;`,[new_password,account,password]).then(result =>{
         if(result.affectedRows > 0){
-            return {
-                message:"用户名密码更新成功！"
-            }
+            resp.send(resp.tool.respondTemp(0,"更新密码成功",{}))
         }else {
-            return {
-                message: "用户名或密码错误，跟新失败！"
-            }
+            resp.send(resp.tool.respondTemp(-1,"更新密码成功",{}))
         }
     })
 })
